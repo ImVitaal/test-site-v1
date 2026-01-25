@@ -5,6 +5,7 @@ import { PlayerProvider, usePlayer } from './player-context'
 import { PlayerControls } from './player-controls'
 import { FrameStepper } from './frame-stepper'
 import { PlaybackSpeed } from './playback-speed'
+import { TouchOverlay } from './touch-overlay'
 import { cn } from '@/lib/utils/cn'
 import { FRAME_RATE } from '@/config/constants'
 
@@ -13,9 +14,10 @@ interface VideoPlayerInnerProps {
   poster?: string
   title?: string
   className?: string
+  onFavorite?: () => void
 }
 
-function VideoPlayerInner({ src, poster, title, className }: VideoPlayerInnerProps) {
+function VideoPlayerInner({ src, poster, title, className, onFavorite }: VideoPlayerInnerProps) {
   const { videoRef, state, togglePlay, stepForward, stepBackward, updateState } = usePlayer()
 
   // Handle time updates
@@ -125,11 +127,11 @@ function VideoPlayerInner({ src, poster, title, className }: VideoPlayerInnerPro
         </div>
       </div>
 
-      {/* Play button overlay when paused */}
+      {/* Play button overlay when paused (desktop only) */}
       {!state.isPlaying && (
         <button
           onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none sm:pointer-events-auto"
         >
           <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center">
             <svg
@@ -142,6 +144,9 @@ function VideoPlayerInner({ src, poster, title, className }: VideoPlayerInnerPro
           </div>
         </button>
       )}
+
+      {/* Mobile touch overlay */}
+      <TouchOverlay onFavorite={onFavorite} />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { TrendingSection } from '@/components/clips/trending-section'
 import { ArrowRight, Play, Users, Film, BookOpen } from 'lucide-react'
 
 export default function HomePage() {
@@ -36,6 +37,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Trending Section */}
+      <TrendingSection className="border-t border-border" />
 
       {/* Features Section */}
       <section className="py-20 border-t border-border">
