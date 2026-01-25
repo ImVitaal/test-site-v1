@@ -15,10 +15,19 @@ export const ROUTES = {
     detail: (slug: string) => `/clips/${slug}` as const,
   },
 
+  // Search
+  search: '/search',
+
+  // Upload
+  upload: '/upload',
+
   // User
   profile: '/profile',
   favorites: '/favorites',
-  collections: '/collections',
+  collections: {
+    list: '/collections',
+    detail: (slug: string) => `/collections/${slug}` as const,
+  },
 
   // Auth
   login: '/login',

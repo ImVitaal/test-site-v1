@@ -6,6 +6,7 @@ import { Search, Menu, X, User } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui/button'
+import { SearchCommand } from '@/components/search'
 import { mainNav } from '@/config/navigation'
 
 interface HeaderProps {
@@ -18,6 +19,7 @@ interface HeaderProps {
 export function Header({ user }: HeaderProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -46,13 +48,16 @@ export function Header({ user }: HeaderProps) {
         {/* Search & User */}
         <div className="flex items-center space-x-4">
           {/* Search Button */}
-          <Button variant="ghost" size="sm" className="hidden sm:flex">
+          <Button variant="ghost" size="sm" className="hidden sm:flex" onClick={() => setSearchOpen(true)}>
             <Search className="h-4 w-4 mr-2" />
             <span className="text-foreground-muted">Search...</span>
             <kbd className="ml-4 pointer-events-none hidden h-5 select-none items-center gap-1 rounded border border-border bg-surface px-1.5 font-mono text-[10px] font-medium sm:flex">
               <span className="text-xs">⌘</span>K
             </kbd>
           </Button>
+
+          {/* Search Command Modal */}
+          <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
 
           {/* User Menu */}
           {user ? (

@@ -1,6 +1,63 @@
 import prisma from '@/lib/db/prisma'
 import { getPaginationParams, createPaginatedResult } from '@/lib/db/utils'
-import type { ClipQueryInput } from '@/lib/validations/clip'
+import type { ClipQueryInput, CreateClipInput } from '@/lib/validations/clip'
+
+function generateSlug(title: string): string {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .slice(0, 50)
+  const suffix = Math.random().toString(36).substring(2, 8)
+  return `${base}-${suffix}`
+}
+
+export async function createClip(data: CreateClipInput & { videoUrl: string; thumbnailUrl?: string }, userId: string) {
+  const slug = generateSlug(data.title)
+
+  return prisma.clip.create({
+    data: {
+      slug,
+      title: data.title,
+      videoUrl: data.videoUrl,
+      thumbnailUrl: data.thumbnailUrl ?? null,
+      duration: data.duration,
+      animeId: data.animeId,
+      episodeNumber: data.episodeNumber,
+      timestampStart: data.timestampStart,
+      techniqueDescription: data.techniqueDescription,
+      submittedBy: userId,
+      submissionStatus: 'PENDING',
+      attributions: {
+        create: data.attributions.map((a) => ({
+          animatorId: a.animatorId,
+          role: a.role,
+          verificationStatus: 'SPECULATIVE',
+          sourceUrl: a.sourceUrl,
+          sourceNote: a.sourceNote,
+        })),
+      },
+      tags: data.tagIds
+        ? {
+            create: data.tagIds.map((tagId) => ({ tagId })),
+          }
+        : undefined,
+    },
+    include: {
+      anime: true,
+      attributions: {
+        include: {
+          animator: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: true,
+        },
+      },
+    },
+  })
+}
 
 export async function getClipBySlug(slug: string) {
   return prisma.clip.findUnique({
