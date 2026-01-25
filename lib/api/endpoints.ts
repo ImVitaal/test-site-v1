@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   // Clips
   clips: {
     list: '/clips',
+    trending: '/clips/trending',
     detail: (slug: string) => `/clips/${slug}`,
     favorite: (slug: string) => `/clips/${slug}/favorite`,
     related: (slug: string) => `/clips/${slug}/related`,
