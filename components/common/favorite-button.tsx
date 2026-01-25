@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
 import { Heart } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
+import { useFavoriteClip, useClipFavoriteStatus } from '@/lib/hooks'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { ROUTES } from '@/config/routes'
 
 interface FavoriteButtonProps {
   clipSlug: string
@@ -15,8 +18,15 @@ export function FavoriteButton({
   initialFavorited = false,
   size = 'md',
 }: FavoriteButtonProps) {
-  const [favorited, setFavorited] = useState(initialFavorited)
-  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+  const { data: session } = useSession()
+  const { data: favorited, isLoading: isLoadingStatus } = useClipFavoriteStatus(
+    session ? clipSlug : undefined
+  )
+  const { mutate: toggleFavorite, isPending } = useFavoriteClip(clipSlug)
+
+  // Use server-provided initial value if not authenticated or still loading
+  const isFavorited = favorited ?? initialFavorited
 
   const sizes = {
     sm: 'p-1.5',
@@ -31,41 +41,31 @@ export function FavoriteButton({
   }
 
   const handleClick = () => {
-    startTransition(async () => {
-      try {
-        const response = await fetch(`/api/clips/${clipSlug}/favorite`, {
-          method: 'POST',
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setFavorited(data.data.favorited)
-        } else if (response.status === 401) {
-          // Redirect to login
-          window.location.href = '/login'
-        }
-      } catch (error) {
-        console.error('Error toggling favorite:', error)
-      }
-    })
+    if (!session) {
+      router.push(ROUTES.login)
+      return
+    }
+    toggleFavorite()
   }
+
+  const isDisabled = isPending || isLoadingStatus
 
   return (
     <button
       onClick={handleClick}
-      disabled={isPending}
+      disabled={isDisabled}
       className={cn(
         'rounded-full transition-colors',
         sizes[size],
-        favorited
+        isFavorited
           ? 'bg-error/20 text-error hover:bg-error/30'
           : 'bg-surface hover:bg-surface-hover text-foreground-muted hover:text-foreground',
-        isPending && 'opacity-50 cursor-not-allowed'
+        isDisabled && 'opacity-50 cursor-not-allowed'
       )}
-      aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
+      aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
     >
       <Heart
-        className={cn(iconSizes[size], favorited && 'fill-current')}
+        className={cn(iconSizes[size], isFavorited && 'fill-current')}
       />
     </button>
   )

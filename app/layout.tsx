@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Sans, Playfair_Display, JetBrains_Mono } from 'next/font/google'
 import { siteConfig } from '@/config/site'
+import { Providers } from '@/components/providers'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -73,7 +74,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${playfair.variable} ${jetbrains.variable} font-sans min-h-screen bg-background antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
