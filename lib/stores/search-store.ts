@@ -16,6 +16,15 @@ interface SearchState {
   globalQuery: string
   setGlobalQuery: (query: string) => void
   clearGlobalQuery: () => void
+
+  // Search type filter
+  searchType: 'all' | 'animators' | 'clips'
+  setSearchType: (type: 'all' | 'animators' | 'clips') => void
+
+  // Recent searches
+  recentSearches: string[]
+  addRecentSearch: (query: string) => void
+  clearRecentSearches: () => void
 }
 
 const defaultAnimatorFilters: AnimatorSearchParams = {
@@ -53,5 +62,20 @@ export const useSearchStore = createPersistedStore<SearchState>(
     globalQuery: '',
     setGlobalQuery: (query) => set({ globalQuery: query }),
     clearGlobalQuery: () => set({ globalQuery: '' }),
+
+    // Search type
+    searchType: 'all',
+    setSearchType: (type) => set({ searchType: type }),
+
+    // Recent searches
+    recentSearches: [],
+    addRecentSearch: (query) =>
+      set((state) => {
+        const filtered = state.recentSearches.filter((q) => q !== query)
+        return {
+          recentSearches: [query, ...filtered].slice(0, 10),
+        }
+      }),
+    clearRecentSearches: () => set({ recentSearches: [] }),
   })
 )
