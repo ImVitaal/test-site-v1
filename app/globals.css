@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 13 13 20;
+    --foreground: 244 244 245;
+    --accent: 139 92 246;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /* Custom scrollbar for dark mode */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-foreground-muted;
+  }
+}
+
+@layer components {
+  /* Card styles */
+  .card {
+    @apply bg-surface rounded-card border border-border;
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:bg-surface-hover hover:shadow-card-hover hover:-translate-y-0.5;
+  }
+
+  /* Button base */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-button font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-hover;
+  }
+
+  .btn-secondary {
+    @apply btn bg-surface text-foreground border border-border hover:bg-surface-hover;
+  }
+
+  .btn-ghost {
+    @apply btn hover:bg-surface-hover;
+  }
+
+  /* Input styles */
+  .input {
+    @apply flex h-10 w-full rounded-button border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-verified {
+    @apply badge bg-verified/20 text-verified;
+  }
+
+  .badge-speculative {
+    @apply badge bg-speculative/20 text-speculative;
+  }
+
+  .badge-disputed {
+    @apply badge bg-disputed/20 text-disputed;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse rounded-md bg-surface-hover;
+  }
+
+  /* Video player container */
+  .video-container {
+    @apply relative aspect-video w-full overflow-hidden rounded-card bg-black;
+  }
+
+  /* Timeline node */
+  .timeline-node {
+    @apply relative flex flex-col items-center;
+  }
+
+  .timeline-node::before {
+    @apply absolute top-4 h-full w-px bg-border content-[''];
+  }
+
+  .timeline-node:last-child::before {
+    @apply hidden;
+  }
+}
+
+@layer utilities {
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-accent to-accent-hover bg-clip-text text-transparent;
+  }
+
+  /* Glow effect */
+  .glow {
+    @apply shadow-glow;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-safe\:animate-fade-in,
+    .motion-safe\:animate-slide-up,
+    .motion-safe\:animate-scale-in {
+      animation: none;
+    }
+  }
+}
