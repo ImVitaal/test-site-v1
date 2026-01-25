@@ -1,0 +1,374 @@
+// Sakuga Legends Database Schema
+// Based on PRD v4.0 Section 8.3
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  KEY_ANIMATION
+  SECOND_KEY_ANIMATION
+  ANIMATION_DIRECTOR
+  CHIEF_ANIMATION_DIRECTOR
+  CHARACTER_DESIGN
+  MECHANICAL_ANIMATION
+  EFFECTS_ANIMATION
+}
+
+enum VerificationStatus {
+  VERIFIED   // Confirmed via credits/books
+  SPECULATIVE // Community attribution
+  DISPUTED   // Conflicting claims
+}
+
+enum UserRole {
+  USER
+  CONTRIBUTOR
+  MODERATOR
+  ADMIN
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============================================
+// CORE ENTITIES
+// ============================================
+
+model Animator {
+  id            String    @id @default(cuid())
+  slug          String    @unique // URL-friendly identifier
+  name          String    // English name
+  nativeName    String?   // Japanese/native script
+  bio           String?   @db.Text
+  birthDate     DateTime?
+  deathDate     DateTime?
+  photoUrl      String?
+  twitterHandle String?
+  pixivId       String?
+  websiteUrl    String?
+
+  // Relationships
+  attributions  Attribution[]
+  mentors       AnimatorRelation[] @relation("StudentRelation")
+  students      AnimatorRelation[] @relation("MentorRelation")
+  studioHistory StudioHistory[]
+  favorites     Favorite[]
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String? // User ID
+
+  @@index([name])
+  @@index([slug])
+}
+
+model AnimatorRelation {
+  id           String  @id @default(cuid())
+  mentorId     String
+  studentId    String
+  relationType String  @default("mentor") // mentor, colleague, influenced_by
+  startYear    Int?
+  endYear      Int?
+
+  mentor  Animator @relation("MentorRelation", fields: [mentorId], references: [id], onDelete: Cascade)
+  student Animator @relation("StudentRelation", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, studentId])
+}
+
+model Studio {
+  id         String  @id @default(cuid())
+  slug       String  @unique
+  name       String
+  nativeName String?
+  founded    Int?
+  dissolved  Int?
+  parentId   String? // For studio family trees
+  logoUrl    String?
+
+  parent   Studio?         @relation("StudioFamily", fields: [parentId], references: [id])
+  children Studio[]        @relation("StudioFamily")
+  clips    Clip[]
+  history  StudioHistory[]
+
+  @@index([name])
+}
+
+model StudioHistory {
+  id         String  @id @default(cuid())
+  animatorId String
+  studioId   String
+  startYear  Int
+  endYear    Int?
+  position   String? // e.g., "Staff Animator", "Freelance"
+
+  animator Animator @relation(fields: [animatorId], references: [id], onDelete: Cascade)
+  studio   Studio   @relation(fields: [studioId], references: [id], onDelete: Cascade)
+
+  @@unique([animatorId, studioId, startYear])
+}
+
+// ============================================
+// CLIP SYSTEM
+// ============================================
+
+model Clip {
+  id           String @id @default(cuid())
+  slug         String @unique
+  title        String // Descriptive title
+  videoUrl     String // Cloudflare Stream ID
+  thumbnailUrl String?
+  duration     Int // Seconds (max 45)
+
+  // Source information
+  animeId        String
+  anime          Anime   @relation(fields: [animeId], references: [id])
+  episodeNumber  Int?
+  timestampStart String? // e.g., "12:34"
+
+  // Fair Use compliance
+  techniqueDescription String @db.Text // Required for uploads
+
+  // Relationships
+  attributions Attribution[]
+  tags         ClipTag[]
+  collections  CollectionClip[]
+  favorites    Favorite[]
+  comments     Comment[]
+
+  // Engagement
+  viewCount     Int @default(0)
+  favoriteCount Int @default(0)
+
+  // Moderation
+  studioId         String?
+  studio           Studio?          @relation(fields: [studioId], references: [id])
+  submittedBy      String? // User ID
+  submissionStatus SubmissionStatus @default(PENDING)
+  moderatedBy      String?
+  moderatedAt      DateTime?
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animeId])
+  @@index([submissionStatus])
+}
+
+model Anime {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  title       String // English title
+  nativeTitle String? // Japanese title
+  romajiTitle String? // Romanized
+  year        Int
+  season      String? // spring, summer, fall, winter
+  coverUrl    String?
+  malId       Int? // MyAnimeList ID for linking
+
+  clips Clip[]
+
+  @@index([title])
+  @@index([year])
+}
+
+model Attribution {
+  id         String @id @default(cuid())
+  animatorId String
+  clipId     String
+  role       Role   @default(KEY_ANIMATION)
+
+  // Verification
+  verificationStatus VerificationStatus @default(SPECULATIVE)
+  sourceUrl          String? // Link to credits/proof
+  sourceNote         String? // e.g., "Staff credits at 23:45"
+  verifiedBy         String? // Moderator user ID
+  verifiedAt         DateTime?
+
+  animator Animator @relation(fields: [animatorId], references: [id], onDelete: Cascade)
+  clip     Clip     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  @@unique([animatorId, clipId, role])
+  @@index([verificationStatus])
+}
+
+// ============================================
+// TAGGING SYSTEM
+// ============================================
+
+model Tag {
+  id            String  @id @default(cuid())
+  slug          String  @unique
+  name          String // e.g., "Smear"
+  category      String // technique, style, content
+  description   String? @db.Text
+  exampleClipId String? // Featured example
+
+  clips ClipTag[]
+
+  @@index([category])
+}
+
+model ClipTag {
+  clipId String
+  tagId  String
+
+  clip Clip @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([clipId, tagId])
+}
+
+// ============================================
+// USER SYSTEM
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  role          UserRole @default(USER)
+
+  // Trust system
+  trustScore        Int @default(0)
+  contributionCount Int @default(0)
+
+  // Relationships
+  accounts    Account[]
+  sessions    Session[]
+  favorites   Favorite[]
+  collections Collection[]
+  comments    Comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Favorite {
+  id         String  @id @default(cuid())
+  userId     String
+  animatorId String?
+  clipId     String?
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  animator Animator? @relation(fields: [animatorId], references: [id], onDelete: Cascade)
+  clip     Clip?     @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, animatorId])
+  @@unique([userId, clipId])
+}
+
+model Collection {
+  id          String  @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  isPublic    Boolean @default(true)
+  slug        String  @unique
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clips CollectionClip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CollectionClip {
+  collectionId String
+  clipId       String
+  order        Int    @default(0)
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  clip       Clip       @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, clipId])
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  userId  String
+  clipId  String
+  content String @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clip Clip @relation(fields: [clipId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clipId])
+}
+
+// ============================================
+// EDUCATIONAL CONTENT
+// ============================================
+
+model GlossaryTerm {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  term          String // e.g., "Itano Circus"
+  definition    String   @db.Text
+  exampleClipId String?
+  relatedTerms  String[] // Array of slugs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([term])
+}
