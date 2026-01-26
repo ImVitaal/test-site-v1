@@ -18,6 +18,12 @@ export const API_ENDPOINTS = {
     related: (slug: string) => `/clips/${slug}/related`,
   },
 
+  // Glossary
+  glossary: {
+    list: '/glossary',
+    detail: (slug: string) => `/glossary/${slug}`,
+  },
+
   // Search
   search: {
     global: '/search',
