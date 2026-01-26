@@ -43,6 +43,18 @@ enum SubmissionStatus {
   REJECTED
 }
 
+enum RankingType {
+  EDITORIAL  // Curated by site admins
+  COMMUNITY  // Voted by users
+}
+
+enum RankingCategory {
+  ANIMATOR
+  CLIP
+  STUDIO
+  ANIME
+}
+
 // ============================================
 // CORE ENTITIES
 // ============================================
@@ -66,6 +78,7 @@ model Animator {
   students      AnimatorRelation[] @relation("MentorRelation")
   studioHistory StudioHistory[]
   favorites     Favorite[]
+  rankingItems  RankingItem[]
 
   // Metadata
   createdAt DateTime @default(now())
@@ -100,10 +113,11 @@ model Studio {
   parentId   String? // For studio family trees
   logoUrl    String?
 
-  parent   Studio?         @relation("StudioFamily", fields: [parentId], references: [id])
-  children Studio[]        @relation("StudioFamily")
-  clips    Clip[]
-  history  StudioHistory[]
+  parent       Studio?         @relation("StudioFamily", fields: [parentId], references: [id])
+  children     Studio[]        @relation("StudioFamily")
+  clips        Clip[]
+  history      StudioHistory[]
+  rankingItems RankingItem[]
 
   @@index([name])
 }
@@ -149,6 +163,7 @@ model Clip {
   collections  CollectionClip[]
   favorites    Favorite[]
   comments     Comment[]
+  rankingItems RankingItem[]
 
   // Engagement
   viewCount     Int @default(0)
@@ -181,7 +196,8 @@ model Anime {
   coverUrl    String?
   malId       Int? // MyAnimeList ID for linking
 
-  clips Clip[]
+  clips        Clip[]
+  rankingItems RankingItem[]
 
   @@index([title])
   @@index([year])
@@ -256,6 +272,7 @@ model User {
   favorites   Favorite[]
   collections Collection[]
   comments    Comment[]
+  votes       Vote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -371,4 +388,75 @@ model GlossaryTerm {
   updatedAt DateTime @updatedAt
 
   @@index([term])
+}
+
+// ============================================
+// RANKINGS SYSTEM
+// ============================================
+
+model RankingList {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String          // "Top 100 Action Animators"
+  description String?         @db.Text
+  type        RankingType     @default(COMMUNITY)
+  category    RankingCategory
+  coverUrl    String?
+  isActive    Boolean         @default(true)
+
+  items RankingItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?  // User ID
+
+  @@index([type])
+  @@index([category])
+  @@index([isActive])
+}
+
+model RankingItem {
+  id     String @id @default(cuid())
+  listId String
+  rank   Int
+
+  // Polymorphic: exactly one should be set based on list category
+  animatorId String?
+  clipId     String?
+  studioId   String?
+  animeId    String?
+
+  // Voting
+  voteCount Int @default(0)
+
+  list     RankingList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  animator Animator?   @relation(fields: [animatorId], references: [id], onDelete: Cascade)
+  clip     Clip?       @relation(fields: [clipId], references: [id], onDelete: Cascade)
+  studio   Studio?     @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  anime    Anime?      @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  votes    Vote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listId, rank])
+  @@index([listId])
+  @@index([animatorId])
+  @@index([clipId])
+  @@index([studioId])
+  @@index([animeId])
+}
+
+model Vote {
+  id     String @id @default(cuid())
+  userId String
+  itemId String
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item RankingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId]) // One vote per user per item
+  @@index([itemId])
 }
