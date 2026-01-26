@@ -3,6 +3,7 @@ export * from './use-animators'
 export * from './use-clips'
 export * from './use-favorite'
 export * from './use-trending'
+export * from './use-glossary'
 
 // Utility hooks
 export * from './use-debounce'
