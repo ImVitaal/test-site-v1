@@ -4,6 +4,7 @@ export * from './use-clips'
 export * from './use-favorite'
 export * from './use-trending'
 export * from './use-glossary'
+export * from './use-influence-graph'
 
 // Utility hooks
 export * from './use-debounce'

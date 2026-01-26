@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     detail: (slug: string) => `/animators/${slug}`,
     clips: (slug: string) => `/animators/${slug}/clips`,
     timeline: (slug: string) => `/animators/${slug}/timeline`,
+    relations: (slug: string) => `/animators/${slug}/relations`,
   },
 
   // Clips
