@@ -1,20 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, TrendingUp } from 'lucide-react'
-import { ClipCard } from './clip-card'
+import { ArrowRight, Clock } from 'lucide-react'
+import { ClipCard } from '@/components/clips/clip-card'
 import { SkeletonCard } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
-import { useHomepageTrending } from '@/lib/hooks/use-trending'
+import { useRecentClips } from '@/lib/hooks/use-recent-clips'
 import { cn } from '@/lib/utils/cn'
 
-interface TrendingSectionProps {
+interface RecentAdditionsSectionProps {
   className?: string
   limit?: number
 }
 
-export function TrendingSection({ className, limit = 6 }: TrendingSectionProps) {
-  const { data: clips, isLoading, error } = useHomepageTrending(limit)
+export function RecentAdditionsSection({
+  className,
+  limit = 6,
+}: RecentAdditionsSectionProps) {
+  const { data: clips, isLoading, error } = useRecentClips(limit)
 
   return (
     <section className={cn('py-12 md:py-16', className)}>
@@ -23,18 +26,18 @@ export function TrendingSection({ className, limit = 6 }: TrendingSectionProps) 
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-accent" />
+              <Clock className="h-5 w-5 text-accent" />
             </div>
             <div>
               <h2 className="font-display text-heading-md text-foreground">
-                Trending Now
+                Recent Additions
               </h2>
               <p className="text-sm text-foreground-muted">
-                Popular clips from the past 2 weeks
+                Latest clips added to the archive
               </p>
             </div>
           </div>
-          <Link href="/trending">
+          <Link href="/clips?sortBy=createdAt&sortOrder=desc">
             <Button variant="ghost" className="hidden sm:flex">
               View all
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -46,7 +49,7 @@ export function TrendingSection({ className, limit = 6 }: TrendingSectionProps) 
         {error ? (
           <div className="text-center py-12">
             <p className="text-foreground-muted">
-              Failed to load trending clips. Please try again later.
+              Failed to load recent clips. Please try again later.
             </p>
           </div>
         ) : isLoading ? (
@@ -74,9 +77,9 @@ export function TrendingSection({ className, limit = 6 }: TrendingSectionProps) 
 
             {/* Mobile view all button */}
             <div className="mt-6 text-center sm:hidden">
-              <Link href="/trending">
+              <Link href="/clips?sortBy=createdAt&sortOrder=desc">
                 <Button variant="secondary">
-                  View all trending
+                  View all recent
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -85,19 +88,17 @@ export function TrendingSection({ className, limit = 6 }: TrendingSectionProps) 
         ) : (
           <div className="text-center py-12">
             <p className="text-foreground-muted">
-              No trending clips at the moment. Check back soon!
+              No clips added yet. Be the first to contribute!
             </p>
+            <Link href="/upload" className="mt-4 inline-block">
+              <Button variant="secondary">
+                Submit a Clip
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         )}
       </div>
     </section>
   )
-}
-
-/**
- * Server component wrapper that can be used for SSR
- * Falls back to client-side fetching
- */
-export function TrendingSectionServer({ className, limit }: TrendingSectionProps) {
-  return <TrendingSection className={className} limit={limit} />
 }

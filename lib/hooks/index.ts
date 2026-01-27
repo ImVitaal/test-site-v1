@@ -6,6 +6,8 @@ export * from './use-trending'
 export * from './use-glossary'
 export * from './use-influence-graph'
 export * from './use-rankings'
+export * from './use-featured-animator'
+export * from './use-recent-clips'
 
 // Utility hooks
 export * from './use-debounce'
