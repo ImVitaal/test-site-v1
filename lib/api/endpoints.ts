@@ -4,6 +4,8 @@ export const API_ENDPOINTS = {
   // Animators
   animators: {
     list: '/animators',
+    featured: '/animators/featured',
+    rising: '/animators/rising',
     detail: (slug: string) => `/animators/${slug}`,
     clips: (slug: string) => `/animators/${slug}/clips`,
     timeline: (slug: string) => `/animators/${slug}/timeline`,
@@ -14,6 +16,7 @@ export const API_ENDPOINTS = {
   clips: {
     list: '/clips',
     trending: '/clips/trending',
+    recent: '/clips/recent',
     detail: (slug: string) => `/clips/${slug}`,
     favorite: (slug: string) => `/clips/${slug}/favorite`,
     related: (slug: string) => `/clips/${slug}/related`,

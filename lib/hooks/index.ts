@@ -6,6 +6,7 @@ export * from './use-trending'
 export * from './use-glossary'
 export * from './use-influence-graph'
 export * from './use-rankings'
+export * from './use-homepage'
 
 // Utility hooks
 export * from './use-debounce'
