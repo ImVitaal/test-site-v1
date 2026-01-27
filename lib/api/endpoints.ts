@@ -10,6 +10,11 @@ export const API_ENDPOINTS = {
     relations: (slug: string) => `/animators/${slug}/relations`,
   },
 
+  // Featured
+  featured: {
+    animator: '/featured-animator',
+  },
+
   // Clips
   clips: {
     list: '/clips',
