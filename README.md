@@ -41,17 +41,44 @@ Web platform celebrating anime key animators with clip database, frame-by-frame 
 
 ### Prerequisites
 - Node.js 18+
-- pnpm
-- Docker (for local Postgres + Meilisearch)
+- npm/pnpm
+- PostgreSQL (or Docker for local setup)
+- Optional: Docker (for Meilisearch)
 
-### Setup
+### Quick Setup
+
 ```bash
-pnpm install
-cp .env.example .env.local  # Configure environment
-docker-compose up -d        # Start databases
-pnpm db:push               # Apply schema
-pnpm dev                   # Start dev server
+# 1. Install dependencies
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 3. Start PostgreSQL
+# Option A: Docker
+docker-compose up -d
+# Option B: Local PostgreSQL service
+sudo systemctl start postgresql
+
+# 4. Set up database
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Create schema
+
+# 5. Start dev server
+npm run dev
 ```
+
+### Demo Page
+
+If you encounter Prisma client generation issues, you can still view the UI design:
+
+```bash
+npm run dev
+# Visit http://localhost:3000/demo
+```
+
+The demo page showcases the complete Sakuga Legends interface without requiring database access.
 
 ## Documentation
 - [PRD.md](./PRD.md) - Product requirements
