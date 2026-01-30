@@ -32,6 +32,9 @@ sakuga-legends/
 │   ├── not-found.tsx             # Not found page (404)
 │   ├── global-error.tsx          # Root error boundary
 │   │
+│   ├── demo/                     # 🎨 Demo Page
+│   │   └── page.tsx              # Static UI demo (no DB required)
+│   │
 │   ├── (auth)/                   # 🔐 Authentication Routes
 │   │   ├── layout.tsx            # Centered card layout
 │   │   └── login/
@@ -352,7 +355,7 @@ sakuga-legends/
 
 | Directory | Files | Description |
 |-----------|-------|-------------|
-| `app/` | 53 | Pages, layouts, API routes, error pages |
+| `app/` | 54 | Pages, layouts, API routes, error pages |
 | `components/` | 73 | React components + providers |
 | `lib/` | 42 | Utilities, hooks, stores, services |
 | `config/` | 4 | Configuration files |
@@ -360,7 +363,7 @@ sakuga-legends/
 | `prisma/` | 1 | Database schema |
 | Root | 9 | Config files |
 | Docs | 5 | Documentation |
-| **Total** | **~191** | |
+| **Total** | **~192** | |
 
 ## Key Entry Points
 
