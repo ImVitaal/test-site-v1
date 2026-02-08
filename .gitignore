@@ -51,3 +51,6 @@ next-env.d.ts
 *.log
 *.pid
 *.seed
+
+# Auto Claude data directory
+.auto-claude/
