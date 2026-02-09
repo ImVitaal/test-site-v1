@@ -1,3 +1,5 @@
+const { withSentryConfig } = require('@sentry/nextjs')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   optimizeFonts: false,
@@ -52,4 +54,15 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+// Sentry webpack plugin options for source map upload
+const sentryWebpackPluginOptions = {
+  // Suppresses source map uploading logs during build
+  silent: true,
+  // Organization and project from environment variables
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  // Auth token for source map upload
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+}
+
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions)

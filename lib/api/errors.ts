@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
+import * as Sentry from '@sentry/nextjs'
 import { ERROR_CODES, type ErrorCode } from '@/types/api'
 
 interface ErrorResponseOptions {
@@ -70,6 +71,7 @@ export const errors = {
   internal: (error?: Error) => {
     if (error) {
       console.error('Internal error:', error)
+      Sentry.captureException(error)
     }
     return createErrorResponse({
       code: ERROR_CODES.INTERNAL_ERROR,
@@ -101,6 +103,9 @@ export function withErrorHandler<T extends (...args: any[]) => Promise<NextRespo
     try {
       return await handler(...args)
     } catch (error) {
+      // Capture all errors in Sentry
+      Sentry.captureException(error)
+
       if (error instanceof ZodError) {
         return errors.validation(error)
       }
