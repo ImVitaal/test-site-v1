@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "006-seed-data-population",
+  "spec": "009-unit-e2e-test-coverage",
   "state": "building",
   "subtasks": {
-    "completed": 3,
-    "total": 4,
+    "completed": 18,
+    "total": 19,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Enhance Seed Data",
+    "current": "CI Integration & Coverage",
     "id": null,
-    "total": 4
+    "total": 3
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 5,
-    "started_at": "2026-02-09T01:42:48.161433"
+    "number": 3,
+    "started_at": "2026-02-09T13:01:11.428858"
   },
-  "last_update": "2026-02-09T01:56:46.661011"
+  "last_update": "2026-02-09T13:19:16.156777"
 }
