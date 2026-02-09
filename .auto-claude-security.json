@@ -201,8 +201,8 @@
       "prisma"
     ],
     "databases": [
-      "redis",
-      "postgresql"
+      "postgresql",
+      "redis"
     ],
     "infrastructure": [
       "docker"
@@ -232,8 +232,7 @@
     "cargo_aliases": [],
     "shell_scripts": []
   },
-  "project_dir": "C:\\Users\\teqhv\\Desktop\\project details\\saku\\Project-2SAKU",
-  "created_at": "2026-02-08T23:17:12.444215",
-  "project_hash": "b3302b5b996b2bfdd15261575282c131",
-  "inherited_from": "C:\\Users\\teqhv\\Desktop\\project details\\saku\\Project-2SAKU"
+  "project_dir": "C:\\Users\\teqhv\\Desktop\\project details\\saku\\Project-2SAKU\\.auto-claude\\worktrees\\tasks\\005-database-connection-prisma-resolution",
+  "created_at": "2026-02-09T13:02:43.810596",
+  "project_hash": "6786f95cb97545978ddabb3963fbaa8d"
 }
