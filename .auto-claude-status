@@ -3,23 +3,23 @@
   "spec": "009-unit-e2e-test-coverage",
   "state": "building",
   "subtasks": {
-    "completed": 10,
+    "completed": 13,
     "total": 19,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "API Route Tests",
+    "current": "E2E Tests - Critical User Flows",
     "id": null,
-    "total": 3
+    "total": 4
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 12,
+    "number": 15,
     "started_at": "2026-02-09T01:44:57.448668"
   },
-  "last_update": "2026-02-09T02:46:45.331588"
+  "last_update": "2026-02-09T03:06:43.088529"
 }
