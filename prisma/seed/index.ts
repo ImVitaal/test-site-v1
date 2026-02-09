@@ -1259,6 +1259,58 @@ async function main() {
         relatedTerms: ['mecha', 'effects-animation'],
       },
     }),
+    prisma.glossaryTerm.upsert({
+      where: { slug: 'animation-director' },
+      update: {},
+      create: {
+        slug: 'animation-director',
+        term: 'Animation Director',
+        definition: 'Also known as Sakkan (作画監督). The supervisor who reviews and corrects key animation to ensure visual consistency across different key animators. A critical quality-control role that harmonizes individual animator styles into a cohesive whole. Episode animation directors handle individual episodes, while chief animation directors oversee entire series.',
+        relatedTerms: ['key-animation', 'genga'],
+      },
+    }),
+    prisma.glossaryTerm.upsert({
+      where: { slug: 'timing-charts' },
+      update: {},
+      create: {
+        slug: 'timing-charts',
+        term: 'Timing Charts',
+        definition: 'Notation written by key animators on their genga to instruct in-betweeners on the spacing and timing between key frames. Uses numbers and symbols to indicate how many frames between poses and whether motion should ease in/out or remain constant. Essential communication tool in the animation pipeline.',
+        relatedTerms: ['key-animation', 'in-between', 'genga'],
+      },
+    }),
+    prisma.glossaryTerm.upsert({
+      where: { slug: 'layout' },
+      update: {},
+      create: {
+        slug: 'layout',
+        term: 'Layout',
+        definition: 'The stage where camera framing, perspective, and character placement are determined. Layout artists create rough drawings that establish the 3D space, camera angle, and composition before key animation begins. Good layouts are crucial for dynamic camera work and spatial coherence.',
+        relatedTerms: ['key-animation', 'genga'],
+      },
+    }),
+    prisma.glossaryTerm.upsert({
+      where: { slug: 'speed-lines' },
+      update: {},
+      create: {
+        slug: 'speed-lines',
+        term: 'Speed Lines',
+        definition: 'Radiating or parallel lines drawn in the background to convey rapid movement or intense emotion. Can indicate motion direction, create dramatic focus, or add energy to a scene. A fundamental manga and anime visual convention that works in tandem with smear frames and other motion techniques.',
+        relatedTerms: ['smear-frame', 'impact-frame'],
+        exampleClipId: clipMap['demon-slayer-zenitsu-thunderclap']?.id,
+      },
+    }),
+    prisma.glossaryTerm.upsert({
+      where: { slug: 'debris-animation' },
+      update: {},
+      create: {
+        slug: 'debris-animation',
+        term: 'Debris Animation',
+        definition: 'The animation of rocks, dust particles, glass shards, wood splinters, and other environmental debris during action scenes. A signature element of many top action animators, particularly Yutaka Nakamura. Debris adds weight, impact, and environmental interaction to make action feel grounded and powerful.',
+        relatedTerms: ['impact-frame', 'effects-animation', 'kanada-school'],
+        exampleClipId: clipMap['cowboy-bebop-spike-church']?.id,
+      },
+    }),
   ])
   console.log(`  Created ${glossaryTerms.length} glossary terms`)
 
