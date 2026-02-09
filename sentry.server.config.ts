@@ -62,11 +62,12 @@ Sentry.init({
       }
 
       // Remove sensitive query parameters
-      if (event.request.query_string) {
+      if (event.request.query_string && typeof event.request.query_string === 'string') {
         const sensitiveParams = ['token', 'api_key', 'password', 'secret']
         sensitiveParams.forEach(param => {
-          if (event.request?.query_string?.includes(param)) {
-            event.request.query_string = event.request.query_string.replace(
+          const queryString = event.request?.query_string
+          if (typeof queryString === 'string' && queryString.includes(param)) {
+            event.request!.query_string = queryString.replace(
               new RegExp(`${param}=[^&]*`, 'gi'),
               `${param}=[REDACTED]`
             )

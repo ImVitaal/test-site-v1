@@ -349,42 +349,26 @@ async function testServerPerformance() {
 
   log('✓ Starting server performance transaction...', 'blue')
 
-  const transaction = Sentry.startTransaction({
-    name: 'test-api-request',
-    op: 'http.server',
-    tags: {
-      'http.method': 'GET',
-      'http.route': '/api/animators/:slug',
+  // Use Sentry.startSpan instead of startTransaction
+  await Sentry.startSpan(
+    {
+      name: 'test-server-transaction',
+      op: 'test',
     },
-  })
+    async () => {
+      // Simulate database query
+      await Sentry.startSpan({ name: 'db.query', op: 'db' }, async () => {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      })
 
-  // Simulate database query
-  const dbSpan = transaction.startChild({
-    op: 'db.query',
-    description: 'SELECT animator FROM animators WHERE slug = $1',
-  })
-  await new Promise((resolve) => setTimeout(resolve, 150))
-  dbSpan.finish()
+      // Simulate external API call
+      await Sentry.startSpan({ name: 'http.client', op: 'http' }, async () => {
+        await new Promise(resolve => setTimeout(resolve, 100))
+      })
+    }
+  )
 
-  // Simulate cache check
-  const cacheSpan = transaction.startChild({
-    op: 'cache.get',
-    description: 'Get animator clips from Redis',
-  })
-  await new Promise((resolve) => setTimeout(resolve, 50))
-  cacheSpan.finish()
-
-  // Simulate external API call
-  const apiSpan = transaction.startChild({
-    op: 'http.client',
-    description: 'Fetch clip thumbnails from Cloudflare',
-  })
-  await new Promise((resolve) => setTimeout(resolve, 200))
-  apiSpan.finish()
-
-  transaction.finish()
-
-  log('✓ Server performance transaction captured! Check Sentry dashboard.', 'green')
+  log('✓ Server performance transaction tracked', 'green')
 }
 
 /**

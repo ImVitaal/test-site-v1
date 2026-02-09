@@ -229,29 +229,24 @@ async function testPerformanceTracking() {
 
   log('✓ Starting performance transaction...', 'blue')
 
-  const transaction = Sentry.startTransaction({
-    name: 'test-client-operation',
-    op: 'test',
-  })
+  // Use Sentry.startSpan instead of startTransaction
+  await Sentry.startSpan(
+    {
+      name: 'test-client-transaction',
+      op: 'test',
+    },
+    async () => {
+      // Simulate some work
+      await new Promise(resolve => setTimeout(resolve, 100))
 
-  // Simulate some work
-  const span1 = transaction.startChild({
-    op: 'db.query',
-    description: 'Fetch animator data',
-  })
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  span1.finish()
+      // Create child spans inside
+      await Sentry.startSpan({ name: 'child-operation', op: 'child' }, async () => {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      })
+    }
+  )
 
-  const span2 = transaction.startChild({
-    op: 'http.request',
-    description: 'Fetch clip thumbnails',
-  })
-  await new Promise((resolve) => setTimeout(resolve, 200))
-  span2.finish()
-
-  transaction.finish()
-
-  log('✓ Performance transaction captured! Check Sentry dashboard.', 'green')
+  log('✓ Performance transaction tracked', 'green')
 }
 
 /**
