@@ -123,9 +123,9 @@ Web platform celebrating anime key animators with clip database, frame-by-frame 
 
 ### Phase 2 Infrastructure
 - [ ] Install + configure Inngest (event-driven background jobs)
-- [ ] Install + configure Sentry (error tracking)
+- [x] Install + configure Sentry (error tracking) — **DONE**
 - [ ] Install + configure Plausible (privacy-focused analytics)
-- [ ] Set up Phase 2 environment variables (INNGEST keys, SENTRY_DSN, PLAUSIBLE_DOMAIN)
+- [x] Set up Sentry environment variables (SENTRY_DSN, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN) — **DONE**
 
 ### Phase 2 API Expansion
 - [ ] Studio endpoints (list, detail, timeline)
@@ -202,7 +202,7 @@ These were in earlier plans but have been **dropped** in PRD v5.0:
 | Validation | Zod | ✅ Installed |
 | Testing | Vitest + Playwright | ✅ Installed |
 | Background Jobs | Inngest | ⬜ Phase 2 |
-| Error Tracking | Sentry | ⬜ Phase 2 |
+| Error Tracking | Sentry | ✅ Installed |
 | Analytics | Plausible | ⬜ Phase 2 |
 | i18n | next-intl | ⬜ Phase 3 |
 | Mobile | React Native | ⬜ Phase 3 |
@@ -251,13 +251,97 @@ pnpm dev
 
 ---
 
+## Error Tracking (Sentry)
+
+Sentry is configured for comprehensive error tracking and monitoring across client, server, and edge runtimes.
+
+### Quick Start
+
+1. **Get Sentry credentials** from [sentry.io](https://sentry.io):
+   - Create a new project (or use existing)
+   - Copy the DSN from Project Settings → Client Keys (DSN)
+   - Generate auth token from Settings → Auth Tokens (needs `project:write` + `project:releases`)
+
+2. **Configure environment variables** in `.env.local`:
+
+```bash
+# Runtime error reporting (both can be the same DSN)
+NEXT_PUBLIC_SENTRY_DSN="https://xxx@xxx.ingest.sentry.io/xxx"  # Client-side (public)
+SENTRY_DSN="https://xxx@xxx.ingest.sentry.io/xxx"              # Server-side (private)
+
+# Source map uploads during build
+SENTRY_ORG="your-org-slug"           # From Sentry organization URL
+SENTRY_PROJECT="your-project-slug"   # From Project Settings → General
+SENTRY_AUTH_TOKEN="your-auth-token"  # From Settings → Auth Tokens
+```
+
+3. **Test the integration**:
+
+```bash
+# Test client-side error capture
+pnpm test:sentry-client
+
+# Test server-side error capture
+pnpm test:sentry-server
+
+# Verify source maps configuration
+pnpm verify:sentry-sourcemaps
+```
+
+### What's Configured
+
+✅ **Client-Side Tracking** (`sentry.client.config.ts`)
+- React error boundaries capture
+- Performance monitoring (10% sample rate)
+- Session replay (10% on error, 1% always)
+- Breadcrumbs (navigation, console, clicks)
+- Sensitive data filtering (passwords, tokens, emails)
+
+✅ **Server-Side Tracking** (`sentry.server.config.ts`)
+- API route error capture
+- Request context (method, URL, headers)
+- Performance monitoring (10% sample rate)
+- Database query breadcrumbs
+- Sensitive data filtering (auth headers, cookies, secrets)
+
+✅ **Edge Runtime Tracking** (`sentry.edge.config.ts`)
+- Middleware error capture
+- Optimized for CDN edges (5% sample rate)
+- Minimal overhead
+
+✅ **Source Maps**
+- Automatically uploaded during production builds
+- Readable stack traces in Sentry dashboard
+- Original TypeScript file paths and line numbers
+
+### Integration Points
+
+Sentry is integrated in:
+- `app/error.tsx` — Route-level error boundary
+- `app/global-error.tsx` — Global error boundary
+- `lib/api/errors.ts` — API error handler
+- `instrumentation.ts` — Next.js initialization hook
+
+### Verification
+
+After deploying, verify Sentry is working:
+
+1. Check Sentry dashboard for test errors
+2. Verify stack traces show TypeScript source (not minified JS)
+3. Confirm error grouping and release tracking work
+
+**Troubleshooting:** See [docs/SENTRY_SOURCEMAP_VERIFICATION.md](./docs/SENTRY_SOURCEMAP_VERIFICATION.md) for detailed verification steps and troubleshooting guide.
+
+---
+
 ## Documentation
 
 | Doc | Description |
 |-----|-------------|
 | [PRD.md](./PRD.md) | Product Requirements Document (v5.1) — the single source of truth |
 | [FILEMAP.md](./FILEMAP.md) | Complete project file structure |
+| [SENTRY_SOURCEMAP_VERIFICATION.md](./docs/SENTRY_SOURCEMAP_VERIFICATION.md) | Sentry source maps verification guide |
 
 ---
 
-*Last updated: February 7, 2026*
+*Last updated: February 9, 2026*
